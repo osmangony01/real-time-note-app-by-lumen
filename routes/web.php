@@ -8,13 +8,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('todos', 'TodoController@todos');
-$router->post('add-todo', 'TodoController@addTodo');
-$router->get('todos/{id}', 'TodoController@getATodo');
-$router->post('update-todo/{id}', 'TodoController@updateTodo');
-$router->delete('delete-todo/{id}', 'TodoController@deleteTodo');
-
-
 Route::get('demo', 'TodoController@demo');
 
 
@@ -28,4 +21,10 @@ Route::group(['prefix' => 'api'], function ($router) {
         Route::post('logout', 'AuthController@logout');
     });
 
+    Route::post('add-note', 'NoteController@addNote');
+    Route::get('notes', 'NoteController@notes');
+    Route::get('notes/{id}', 'NoteController@getANote');
+    Route::post('update-note/{id}', 'NoteController@updateNote');
+    Route::delete('delete-note/{id}', 'NoteController@deleteNote');
+    
 });
