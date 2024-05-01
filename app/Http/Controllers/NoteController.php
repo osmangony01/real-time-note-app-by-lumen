@@ -12,18 +12,22 @@ class NoteController extends Controller
 {
     public function notes()
     {
-        $notes = Note::all();
+        try{
+            $user = auth()->user();
 
-        if ($notes->count() > 0) {
-            return response()->json([
-                'status' => 200,
-                'notes' => $notes
-            ], 200);
-        } else {
-            return response()->json([
-                'status' => 404,
-                'notes' => 'No Records Found!!'
-            ], 404);
+            if($user->role !== 1){
+                return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401); 
+            }
+
+            $notes = Note::all();
+
+            if ($notes->count() > 0) {
+                return response()->json(['status' => 200,'notes' => $notes], 200);
+            }
+            return response()->json(['status' => 404,'notes' => 'No Records Found!!'], 404);
+        } 
+        catch (\Exception $e) {
+            return response()->json(['status' => 500, 'error' => 'Something wrong!.'], 500);
         }
     }
 
@@ -57,6 +61,12 @@ class NoteController extends Controller
         }
 
         try {
+            $user = auth()->user();
+
+            if($user->id !== (int)$req->user_id){
+                return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401);
+            }
+
             $note = Note::create([
                 "user_id" => $req->user_id,
                 "title" => $req->title,
@@ -93,6 +103,12 @@ class NoteController extends Controller
             ], 422);
         }
         try{
+            $user = auth()->user();
+
+            if($user->id !== (int)$req->user_id){
+                return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401);
+            }
+            
             $note = Note::findOrFail($id);
             $note->title = $req->title;
             $note->content = $req->content;
@@ -110,23 +126,26 @@ class NoteController extends Controller
                 ], 500);
             }
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 500,
-                'error' => 'Update failed ' . $e->getMessage(),
-            ], 500);
+            return response()->json(['status' => 500,'error' => 'Update failed ' . $e->getMessage(),], 500);
         }
     }
 
-    public function deleteNote($id)
+    public function deleteNote(Request $req, $id)
     {
         try {
             $note = Note::findOrFail($id);
-            $note->delete();
+            $user = auth()->user();
 
-            return response()->json([
-                'status' => 200,
-                'message' => 'Note deleted successful',
-            ], 404);
+            // Check if the user has permission to delete the note
+            if ($user->role === 1 || $user->id === (int) $req->user_id) {
+                $note->delete();
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Note deleted successfully',
+                ], 200);
+            } else {
+                return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401);
+            }
         } catch (ModelNotFoundException $exception) {
             return response()->json([
                 'status' => 404,
@@ -134,4 +153,30 @@ class NoteController extends Controller
             ], 404);
         }
     }
+
+    public function userNote($id)
+    {
+        try {
+            $user = auth()->user();
+
+            if($user->id !== (int)$id){
+                return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401);
+            }
+
+            $user_notes = Note::where('user_id', $id)->get();
+
+            if ($user_notes->count() > 0) {
+                return response()->json(['status' => 200,'notes' => $user_notes,], 200);
+            }
+
+            return response()->json(['status' => 404,'message' => 'user notes not found!',], 404);
+           
+        } catch (ModelNotFoundException $exception) {
+            return response()->json([
+                'status' => 500,
+                'message' => 'Something Wrong!',
+            ], 500);
+        }
+    }
+
 }

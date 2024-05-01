@@ -22,7 +22,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($req->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'required|email|unique:users,email|max:255',
             'password' => 'required|string|min:6'
         ]);
 
@@ -69,16 +69,16 @@ class AuthController extends Controller
             ], 422);
         } 
 
-        // if(! $token = auth()->attempt(["email"=> $req->email, "password"=> $req->password])){
-        //     return response()->json(['status'=> 401,'error' => 'Unauthorized'], 401);
-        // }
         $credentials = $req->only('email', 'password');
 
         if (! $token = auth()->attempt($credentials)) {
             return response()->json(['status' => 401, 'error' => 'Unauthorized'], 401);
         }
 
-       
+        // if(! $token = auth()->attempt(["email"=> $req->email, "password"=> $req->password])){
+        //     return response()->json(['status'=> 401,'error' => 'Unauthorized'], 401);
+        // }
+
         // if (Auth::attempt($credentials)) {
         //     // Authentication passed...
         //     return response()->json(['message' => 'Authenticated successfully'], 200);
@@ -91,12 +91,14 @@ class AuthController extends Controller
     }
 
     public function profile(){
-        if (auth()->check()) {
-            $user = auth()->user();
-            return response()->json($user, 200);
-        } else {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
+        
+        return response()->json(auth()->user(), 200); 
+    //     if (auth()->check()) {
+    //         $user = auth()->user();
+    //         return response()->json($user, 200);
+    //     } else {
+    //         return response()->json(['error' => 'Unauthorized'], 401);
+    //     }
     }
 
     public function logout()

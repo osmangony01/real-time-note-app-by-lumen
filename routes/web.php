@@ -19,12 +19,16 @@ Route::group(['prefix' => 'api'], function ($router) {
     Route::group(['middleware' => 'auth'], function ($router) {
         Route::post('profile', 'AuthController@me');
         Route::post('logout', 'AuthController@logout');
-    });
 
-    Route::post('add-note', 'NoteController@addNote');
-    Route::get('notes', 'NoteController@notes');
-    Route::get('notes/{id}', 'NoteController@getANote');
-    Route::post('update-note/{id}', 'NoteController@updateNote');
-    Route::delete('delete-note/{id}', 'NoteController@deleteNote');
+        Route::post('delete-note/{id}', 'NoteController@deleteNote');
+        Route::get('user-notes/{id}','NoteController@userNote' );
+        Route::get('notes', 'NoteController@notes');
+        Route::post('add-note', 'NoteController@addNote');
+        Route::post('update-note/{id}', 'NoteController@updateNote');
+        Route::get('notes/{id}', 'NoteController@getANote');
+    });
+    
+    
+    // Route::delete('delete-note/{id}', 'NoteController@deleteNote');
     
 });
