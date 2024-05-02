@@ -26,6 +26,8 @@ Route::group(['prefix' => 'api'], function ($router) {
         Route::post('add-note', 'NoteController@addNote');
         Route::post('update-note/{id}', 'NoteController@updateNote');
         Route::get('notes/{id}', 'NoteController@getANote');
+        
+        Route::get('notification/{id}', 'NotificationController@notification');
     });
     
     

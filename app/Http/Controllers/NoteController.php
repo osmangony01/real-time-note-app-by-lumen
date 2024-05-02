@@ -7,6 +7,7 @@ use App\Models\Note;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use App\Notifications\NoteNotification;
 
 class NoteController extends Controller
 {
@@ -74,6 +75,8 @@ class NoteController extends Controller
                 "ownar" => $req->ownar
             ]);
 
+            auth()->user()->notify(new NoteNotification($user, $note));
+
             return response()->json([
                 'status' => 200,
                 'message' => 'Note created successfully',
@@ -83,7 +86,7 @@ class NoteController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 500, 
-                'error' => 'Failed to insert note, Please try again!!.'
+                'error' => 'Failed to insert note, Please try again!!.'. $e->getMessage()
             ], 500);
         }
     }

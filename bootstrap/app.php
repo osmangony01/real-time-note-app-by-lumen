@@ -27,6 +27,10 @@ $app->withFacades();
 
 $app->withEloquent();
 
+$app->withFacades(true, ['Illuminate\Support\Facades\Notification' => 'Notification',]);
+    
+$app->alias('mailer', \Illuminate\Contracts\Mail\Mailer::class);
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -47,6 +51,11 @@ $app->singleton(
     Illuminate\Contracts\Console\Kernel::class,
     App\Console\Kernel::class
 );
+
+$app->singleton('mailer', function ($app) {
+    $app->configure('services');
+    return $app->loadComponent('mail', 'Illuminate\Mail\MailServiceProvider', 'mailer');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -91,7 +100,7 @@ $app->routeMiddleware([
 | totally optional, so you are not required to uncomment this line.
 |
 */
-
+$app->register(Illuminate\Notifications\NotificationServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
 $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
