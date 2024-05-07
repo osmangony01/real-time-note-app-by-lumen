@@ -29,7 +29,7 @@ class NoteService
         return $this->request('POST', '/api/add-note', $data);
     }
     
-    public function updateNode($id, $data)
+    public function updateNode($data, $id)
     {
         return $this->request('POST', "/api/update-note/{$id}", $data);
     }
